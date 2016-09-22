@@ -37,5 +37,6 @@ build() {
 
 package() {
   cd "${srcdir}/build-${MINGW_CHOST}"
-  make DESTDIR="${pkgdir}" PREFIX="${MINGW_PREFIX}" install
+  #make DESTDIR="${pkgdir}" PREFIX="${MINGW_PREFIX}" install
+  make DESTDIR="${pkgdir}" PREFIX="${MINGW_PREFIX}" install-static
 }

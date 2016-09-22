@@ -64,7 +64,6 @@ build() {
     --prefix=${MINGW_PREFIX} \
     --target-os=mingw32 \
     --arch=${CARCH%%-*} \
-    --disable-debug \
     --disable-shared \
     --enable-librubberband \
     --extra-libs=-lstdc++ \
