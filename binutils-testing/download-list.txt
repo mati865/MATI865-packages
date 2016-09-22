@@ -1,0 +1,12 @@
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-libwinpthread-git-5.0.0.4734.38b263c-1-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-winpthreads-git-5.0.0.4734.38b263c-1-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-libtool-2.4.6-6-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-headers-git-5.0.0.4735.01c804b-1-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-crt-git-5.0.0.4735.01c804b-1-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-binutils-2.27-1-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-objc-6.2.1-2-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-libgfortran-6.2.1-2-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-libs-6.2.1-2-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-6.2.1-2-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-fortran-6.2.1-2-any.pkg.tar.xz/download
+https://sourceforge.net/projects/mati865-packages/files/binutils-testing/mingw-w64-x86_64-gcc-ada-6.2.1-2-any.pkg.tar.xz/download

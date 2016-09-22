@@ -1,0 +1,93 @@
+From bbf9f87d1a1767549300ad2dc91fc1c4f89fa30d Mon Sep 17 00:00:00 2001
+From: mati865 <mati865@gmail.com>
+Date: Thu, 22 Sep 2016 12:38:42 +0200
+Subject: [PATCH] fix build for mingw
+
+---
+ Makefile | 39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 58d45a3..ded1580 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,7 @@
+ PREFIX			:= /usr/local
+ LIBDIR			:= $(PREFIX)/lib
+ INCLUDEDIR		:= $(PREFIX)/include
++BINDIR			:= $(PREFIX)/bin
+ 
+ OPTFLAGS		:= -fPIC -g -O3 -Wall
+ override CFLAGS		:= $(OPTFLAGS) $(CFLAGS)
+@@ -13,19 +14,22 @@ AR			:= ar
+ INSTALL_INCDIR		:= $(INCLUDEDIR)/rubberband
+ INSTALL_LIBDIR		:= $(LIBDIR)
+ INSTALL_PKGDIR		:= $(LIBDIR)/pkgconfig
++INSTALL_BINDIR		:= $(BINDIR)
+ 
+ LIBNAME			:= librubberband
+ 
+-DYNAMIC_EXTENSION	:= .so
++DYNAMIC_EXTENSION	:= .dll
+ DYNAMIC_FULL_VERSION	:= 2.1.0
+ DYNAMIC_ABI_VERSION	:= 2
+-DYNAMIC_NAME		:= $(LIBNAME)$(DYNAMIC_EXTENSION)
++DYNAMIC_NAME			:= $(LIBNAME)-${DYNAMIC_ABI_VERSION}$(DYNAMIC_EXTENSION)
+ DYNAMIC_FULL_NAME	:= $(DYNAMIC_NAME).$(DYNAMIC_FULL_VERSION)
+-DYNAMIC_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,-soname=$(DYNAMIC_NAME).$(DYNAMIC_ABI_VERSION)
++IMP_LIBNAME				:= $(LIBNAME)$(DYNAMIC_EXTENSION).a
++DYNAMIC_LDFLAGS		:= -shared -Wl,-Bsymbolic -Wl,--out-implib,lib/$(IMP_LIBNAME)
+ 
+ STATIC_NAME		:= $(LIBNAME).a
+ STATIC_TARGET		:= lib/$(STATIC_NAME)
+-DYNAMIC_TARGET		:= lib/$(DYNAMIC_NAME)
++DYNAMIC_TARGET 		:= bin/$(DYNAMIC_FULL_NAME)
++IMPL_TARGET    		:= lib/$(IMP_LIBNAME)
+ 
+ PUBLIC_INCLUDES := \
+ 	rubberband/rubberband-c.h \
+@@ -67,25 +71,30 @@ $(DYNAMIC_TARGET): $(LIBRARY_OBJECTS)
+ lib:
+ 	$(MKDIR) $@
+ 
++bin:
++	$(MKDIR) $@
++
+ static: lib $(STATIC_TARGET)
+-dynamic:lib $(DYNAMIC_TARGET)
++dynamic: bin $(DYNAMIC_TARGET)
+ 
+ install-headers:
+ 	sed "s,%PREFIX%,$(PREFIX),;s,%LIBDIR%,$(INSTALL_LIBDIR),;s,%INCLUDEDIR%,$(INSTALL_INCDIR)," rubberband.pc.in > rubberband.pc
+-	install -d $(INSTALL_PKGDIR)
+-	install -d $(INSTALL_INCDIR)
+-	install -m 644 rubberband.pc $(INSTALL_PKGDIR)/rubberband.pc
+-	install -m 644 $(PUBLIC_INCLUDES) $(INSTALL_INCDIR)
++	install -d ${DESTDIR}$(INSTALL_PKGDIR)
++	install -d ${DESTDIR}$(INSTALL_INCDIR)
++	install -m 644 rubberband.pc ${DESTDIR}$(INSTALL_PKGDIR)/rubberband.pc
++	install -m 644 $(PUBLIC_INCLUDES) ${DESTDIR}$(INSTALL_INCDIR)
+ 
+ install-static: static install-headers
+-	install -d $(INSTALL_LIBDIR)
+-	install -m644 $(STATIC_TARGET) $(INSTALL_LIBDIR)
++	install -d ${DESTDIR}$(INSTALL_LIBDIR)
++	install -m644 $(STATIC_TARGET) ${DESTDIR}$(INSTALL_LIBDIR)
+ 
+ install-dynamic: dynamic install-headers
+-	install -d $(INSTALL_LIBDIR)
+-	install -m 755 $(DYNAMIC_TARGET) $(INSTALL_LIBDIR)/$(DYNAMIC_FULL_NAME)
+-	ln -sf $(DYNAMIC_FULL_NAME) $(INSTALL_LIBDIR)/$(DYNAMIC_NAME).$(DYNAMIC_ABI_VERSION)
+-	ln -sf $(DYNAMIC_FULL_NAME) $(INSTALL_LIBDIR)/$(DYNAMIC_NAME)
++	install -d ${DESTDIR}$(INSTALL_LIBDIR)
++	install -d ${DESTDIR}$(INSTALL_BINDIR)
++	install -m 755 $(DYNAMIC_TARGET) ${DESTDIR}$(INSTALL_LIBDIR)/$(IMP_LIBNAME)
++	install -m 755 $(DYNAMIC_TARGET) ${DESTDIR}$(INSTALL_BINDIR)/$(DYNAMIC_FULL_NAME)
++	cp bin/$(DYNAMIC_FULL_NAME) ${DESTDIR}$(INSTALL_BINDIR)/$(DYNAMIC_NAME).$(DYNAMIC_ABI_VERSION)
++	cp bin/$(DYNAMIC_FULL_NAME) ${DESTDIR}$(INSTALL_BINDIR)/$(DYNAMIC_NAME)
+ 
+ install: all install-static install-dynamic
+ 
+-- 
+2.9.1
+
