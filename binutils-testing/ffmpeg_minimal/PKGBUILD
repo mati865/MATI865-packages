@@ -60,6 +60,10 @@ build() {
     opt_conf=""
   fi
 
+  CFLAGS="$CFLAGS -static"
+  CXXFLAGS="$CXXFLAGS -static"
+  LDFLAGS="$LDFLAGS -Wl,-Bstatic"
+  
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
     --target-os=mingw32 \
@@ -68,6 +72,7 @@ build() {
     --enable-librubberband \
     --extra-libs=-lstdc++ \
     --enable-gpl \
+    --pkg-config-flags="--static" \
     #--enable-pthreads
 
   make -j1
