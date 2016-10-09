@@ -13,7 +13,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
-pkgver=r149238.53b5526
+pkgver=r149242.06c7bd1
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
@@ -129,8 +129,8 @@ prepare() {
   ${GIT_AM} "${srcdir}"/0014-${_branch}-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} "${srcdir}"/0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch
   ${GIT_AM} "${srcdir}"/0016-disable-weak-refs-in-libstdc++.patch
-  if [ "${_branch}" != "master" ]; then
-    ${GIT_AM} "${srcdir}"/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch${GIT_AM} "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
+  if [ "${_branch}" == "master" ]; then
+    ${GIT_AM} "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
   fi
   # ${GIT_AM} "${srcdir}"/9999-gcc-6-branch-Add-defines-to-disable-optimize-for-size-changes.patch
 
@@ -145,9 +145,8 @@ prepare() {
 }
 
 build() {
-  # [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
-  # mkdir -p ${srcdir}/build-${MINGW_CHOST} &&
-  cd ${srcdir}/build-${MINGW_CHOST}
+  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  mkdir -p ${srcdir}/build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
 
   case "${CARCH}" in
     i686)
@@ -199,11 +198,11 @@ build() {
     --with-bugurl="https://gitlab.com/mati865/MATI865-packages" \
     --with-gnu-as --with-gnu-ld \
     --program-suffix=-${_ver} \
+    --enable-version-specific-runtime-libs \
     ${_conf}
     #--enable-libitm
     #--enable-objc-gc
     #--with-gxx-include-dir=${MINGW_PREFIX}/include/c++/${_realpkgver} \
-    #--enable-version-specific-runtime-libs \
 
   # While we're debugging -fopenmp problems at least.
   # .. we may as well not strip anything.
