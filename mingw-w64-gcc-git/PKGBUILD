@@ -13,7 +13,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-ada-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-objc-git")
-pkgver=r149242.06c7bd1
+pkgver=r149243.07d3677
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
@@ -39,7 +39,7 @@ options=('staticlibs' '!emptydirs' '!ccache') # '!strip' 'debug')
 
 _branch=master # gcc-5-branch, gcc-6-branch, master
 # TODO :: Automate this somehow?
-if [ "${_branch}" = "gcc-6-branch" ]; then
+if [ "${_branch}" = "master" ]; then
   _realpkgver=${_ver}.0.1
 elif [ "${_branch}" = "gcc-6-branch" ]; then
   _realpkgver=6.2.1
