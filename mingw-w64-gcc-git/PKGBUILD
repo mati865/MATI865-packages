@@ -4,16 +4,17 @@
 # Contributor: Alexey Borzenkov <snaury@gmail.com>
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
+# TODO: find better solution for package naming
 _ver='-7' # for installing alongside normal gcc
 _realname=gcc
 pkgbase=mingw-w64-${_realname}${_ver}-git
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-libs-git"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-libgfortran-git"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-fortran-git"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-ada-git"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-objc-git")
-pkgver=r149251.3c0ae0b
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-libs${_ver}-git"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran${_ver}-git"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran${_ver}-git"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-ada${_ver}-git"
+         "${MINGW_PACKAGE_PREFIX}-${_realname}-objc${_ver}-git")
+pkgver=r149382.e00ee5b
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
@@ -93,7 +94,7 @@ sha256sums=('SKIP'
             '60a58ed41389691a68ef4b7d47a0328df4d28d26e6c680a6b06b31191481ca65'
             '262c6fb0f6c9951d69e4c2dcc27949aa8f2cca8e672faf66740a7dbba4a4cd2c'
             'c1e271c166de0062092cb61d50977c0e61d75b0ae6fb086cb8bb4da2b3fd18d7'
-            'e012e5a5272f7d0db8d9f48adc610a98018375bb3c7a9a201f468ed49f7c9233'
+            '422a8f2159c7f4bc7040b75f6e1de831283d3a70da9c7535030022c173c810fb'
             'a82eadfbb6a182b1ffeb860e89c89f46373a8b891594280b2268ecac8d7bac88')
 
 _threads="posix"
@@ -129,9 +130,9 @@ prepare() {
   ${GIT_AM} "${srcdir}"/0014-${_branch}-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} "${srcdir}"/0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch
   ${GIT_AM} "${srcdir}"/0016-disable-weak-refs-in-libstdc++.patch
-  if [ "${_branch}" == "master" ]; then
-    ${GIT_AM} "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
-  fi
+  # if [ "${_branch}" == "master" ]; then
+    # ${GIT_AM} "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
+  # fi
   # ${GIT_AM} "${srcdir}"/9999-gcc-6-branch-Add-defines-to-disable-optimize-for-size-changes.patch
 
   # do not expect $prefix/mingw symlink - this should be superceded by
@@ -198,6 +199,7 @@ build() {
     --with-bugurl="https://gitlab.com/mati865/MATI865-packages" \
     --with-gnu-as --with-gnu-ld \
     --enable-version-specific-runtime-libs \
+    --enable-libstdcxx-filesystem-ts \
     ${_conf}
     #--program-suffix=${_ver} \
     #--enable-libitm
@@ -410,51 +412,51 @@ package_mingw-w64-gcc-objc-git() {
 # Wrappers for package functions
 
 # 32-bit wrappers
-package_mingw-w64-i686-gcc-libs-git() {
+package_mingw-w64-i686-gcc-libs-7-git() {
   package_mingw-w64-gcc-libs-git
 }
 
-package_mingw-w64-i686-gcc-git() {
+package_mingw-w64-i686-gcc-7-git() {
   package_mingw-w64-gcc-git
 }
 
-package_mingw-w64-i686-gcc-libgfortran-git() {
+package_mingw-w64-i686-gcc-libgfortran-7-git() {
   package_mingw-w64-gcc-libgfortran-git
 }
 
-package_mingw-w64-i686-gcc-fortran-git() {
+package_mingw-w64-i686-gcc-fortran-7-git() {
   package_mingw-w64-gcc-fortran-git
 }
 
-package_mingw-w64-i686-gcc-ada-git() {
+package_mingw-w64-i686-gcc-ada-7-git() {
   package_mingw-w64-gcc-ada-git
 }
 
-package_mingw-w64-i686-gcc-objc-git() {
+package_mingw-w64-i686-gcc-objc-7-git() {
   package_mingw-w64-gcc-objc-git
 }
 
 # 64-bit wrappers
-package_mingw-w64-x86_64-gcc-libs-git() {
+package_mingw-w64-x86_64-gcc-libs-7-git() {
   package_mingw-w64-gcc-libs-git
 }
 
-package_mingw-w64-x86_64-gcc-git() {
+package_mingw-w64-x86_64-gcc-7-git() {
   package_mingw-w64-gcc-git
 }
 
-package_mingw-w64-x86_64-gcc-libgfortran-git() {
+package_mingw-w64-x86_64-gcc-libgfortran-7-git() {
   package_mingw-w64-gcc-libgfortran-git
 }
 
-package_mingw-w64-x86_64-gcc-fortran-git() {
+package_mingw-w64-x86_64-gcc-fortran-7-git() {
   package_mingw-w64-gcc-fortran-git
 }
 
-package_mingw-w64-x86_64-gcc-ada-git() {
+package_mingw-w64-x86_64-gcc-ada-7-git() {
   package_mingw-w64-gcc-ada-git
 }
 
-package_mingw-w64-x86_64-gcc-objc-git() {
+package_mingw-w64-x86_64-gcc-objc-7-git() {
   package_mingw-w64-gcc-objc-git
 }

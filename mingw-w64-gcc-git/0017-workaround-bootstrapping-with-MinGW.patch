@@ -1,40 +1,27 @@
-From 112b7278978acdac1a00f8ffb421a59569b96dde Mon Sep 17 00:00:00 2001
+From 34672424f438fba4a1cb0b64c360198d42279bcc Mon Sep 17 00:00:00 2001
 From: mati865 <mati865@gmail.com>
 Date: Sat, 8 Oct 2016 20:50:45 +0200
 Subject: [PATCH] workaround bootstrapping with MinGW
 
 -S arg for selftest causes bootstrap to fail
 ---
- gcc/Makefile.in | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ gcc/Makefile.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/gcc/Makefile.in b/gcc/Makefile.in
-index 705b574..5ec191d 100644
+index f1ff782..ff3f1d9 100644
 --- a/gcc/Makefile.in
 +++ b/gcc/Makefile.in
-@@ -1883,18 +1883,18 @@ rest.cross: specs
- .PHONY: selftest
- selftest: s-selftest
- s-selftest: $(GCC_PASSES) cc1$(exeext) stmp-int-hdrs
--	$(GCC_FOR_TARGET) -xc -S -c /dev/null -fself-test
-+	$(GCC_FOR_TARGET) -xc -c /dev/null 
- 	$(STAMP) $@
+@@ -1881,7 +1881,7 @@ rest.cross: specs
+ # Specify a dummy input file to placate the driver.
+ # Specify -nostdinc to work around missing WIND_BASE environment variable
+ # required for *-wrs-vxworks-* targets.
+-SELFTEST_FLAGS = -nostdinc -x c /dev/null -S -fself-test
++SELFTEST_FLAGS = -nostdinc -x c /dev/null
  
- # Convenience method for running selftests under gdb:
- .PHONY: selftest-gdb
- selftest-gdb: $(GCC_PASSES) cc1$(exeext) stmp-int-hdrs
--	$(GCC_FOR_TARGET) -xc -S -c /dev/null -fself-test -wrapper gdb,--args
-+	$(GCC_FOR_TARGET) -xc -c /dev/null -wrapper gdb,--args
- 
- # Convenience method for running selftests under valgrind:
- .PHONY: selftest-valgrind
- selftest-valgrind: $(GCC_PASSES) cc1$(exeext) stmp-int-hdrs
--	$(GCC_FOR_TARGET) -xc -S -c /dev/null -fself-test \
-+	$(GCC_FOR_TARGET) -xc -c /dev/null \
- 	  -wrapper valgrind,--leak-check=full
- 
- # Recompile all the language-independent object files.
-@@ -2506,7 +2506,7 @@ ALL_GTFILES_H := $(sort $(GTFILES_H) $(GTFILES_LANG_H))
+ # Run the selftests during the build once we have a driver and a cc1,
+ # so that self-test failures are caught as early as possible.
+@@ -2514,7 +2514,7 @@ ALL_GTFILES_H := $(sort $(GTFILES_H) $(GTFILES_LANG_H))
  $(ALL_GTFILES_H) gtype-desc.c gtype-desc.h gtype.state: s-gtype ; @true
  
  ### Common flags to gengtype [e.g. -v or -B backupdir]
@@ -45,4 +32,3 @@ index 705b574..5ec191d 100644
  s-gtyp-input: Makefile
 -- 
 2.9.1
-
