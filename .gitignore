@@ -8,7 +8,7 @@
 *.asc
 *.log
 *.log.[0-9]*
-*/src/
-*/pkg/
+**/src/
+**/pkg/
 */gcc/
 */mingw-w64/
