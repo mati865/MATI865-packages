@@ -14,7 +14,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-ada${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-objc${_ver}-git")
-pkgver=r149382.e00ee5b
+pkgver=r149549.6649e09
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
@@ -199,12 +199,12 @@ build() {
     --with-bugurl="https://gitlab.com/mati865/MATI865-packages" \
     --with-gnu-as --with-gnu-ld \
     --enable-version-specific-runtime-libs \
-    --enable-libstdcxx-filesystem-ts \
     ${_conf}
     #--program-suffix=${_ver} \
     #--enable-libitm
     #--enable-objc-gc
     #--with-gxx-include-dir=${MINGW_PREFIX}/include/c++/${_realpkgver} \
+    #--enable-libstdcxx-filesystem-ts \
 
   # While we're debugging -fopenmp problems at least.
   # .. we may as well not strip anything.
