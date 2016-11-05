@@ -5,6 +5,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 # TODO: find better solution for package naming
+#       test adding suffix and removing /opt/${_realname}
 _ver='-7' # for installing alongside normal gcc
 _realname=gcc
 pkgbase=mingw-w64-${_realname}${_ver}-git
@@ -14,7 +15,7 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-ada${_ver}-git"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-objc${_ver}-git")
-pkgver=r149549.6649e09
+pkgver=r149957.e93d46d
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
@@ -94,7 +95,7 @@ sha256sums=('SKIP'
             '60a58ed41389691a68ef4b7d47a0328df4d28d26e6c680a6b06b31191481ca65'
             '262c6fb0f6c9951d69e4c2dcc27949aa8f2cca8e672faf66740a7dbba4a4cd2c'
             'c1e271c166de0062092cb61d50977c0e61d75b0ae6fb086cb8bb4da2b3fd18d7'
-            '422a8f2159c7f4bc7040b75f6e1de831283d3a70da9c7535030022c173c810fb'
+            '24b0bc0e309658e7f143d51a5f2d7b8c29d87fdc1d04c3a269423e323c5a1db2'
             'a82eadfbb6a182b1ffeb860e89c89f46373a8b891594280b2268ecac8d7bac88')
 
 _threads="posix"
@@ -114,11 +115,11 @@ prepare() {
   ${GIT_AM} "${srcdir}"/0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
   ${GIT_AM} "${srcdir}"/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
   ${GIT_AM} "${srcdir}"/0005-Windows-Don-t-ignore-native-system-header-dir.patch
-  ${GIT_AM} "${srcdir}"/0006-${_branch}-Windows-New-feature-to-allow-overriding.patch
+  # ${GIT_AM} "${srcdir}"/0006-${_branch}-Windows-New-feature-to-allow-overriding.patch
   if [ "${_branch}" != "master" ]; then
     ${GIT_AM} "${srcdir}"/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
-  else
-    ${GIT_AM} "${srcdir}"/0007-master-Build-EXTRA_GNATTOOLS-for-Ada.patch
+  # else
+  #   ${GIT_AM} "${srcdir}"/0007-master-Build-EXTRA_GNATTOOLS-for-Ada.patch
   fi
   ${GIT_AM} "${srcdir}"/0008-Prettify-linking-no-undefined.patch
   ${GIT_AM} "${srcdir}"/0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
@@ -130,9 +131,9 @@ prepare() {
   ${GIT_AM} "${srcdir}"/0014-${_branch}-clone_function_name_1-Retain-any-stdcall-suffix.patch
   ${GIT_AM} "${srcdir}"/0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch
   ${GIT_AM} "${srcdir}"/0016-disable-weak-refs-in-libstdc++.patch
-  # if [ "${_branch}" == "master" ]; then
-    # ${GIT_AM} "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
-  # fi
+  if [ "${_branch}" == "master" ]; then
+    patch -p1 -i "${srcdir}"/0017-workaround-bootstrapping-with-MinGW.patch
+  fi
   # ${GIT_AM} "${srcdir}"/9999-gcc-6-branch-Add-defines-to-disable-optimize-for-size-changes.patch
 
   # do not expect $prefix/mingw symlink - this should be superceded by
@@ -146,8 +147,9 @@ prepare() {
 }
 
 build() {
-  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
-  mkdir -p ${srcdir}/build-${MINGW_CHOST} && cd ${srcdir}/build-${MINGW_CHOST}
+  #[[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  #mkdir -p ${srcdir}/build-${MINGW_CHOST} && 
+  cd ${srcdir}/build-${MINGW_CHOST}
 
   case "${CARCH}" in
     i686)
@@ -200,11 +202,11 @@ build() {
     --with-gnu-as --with-gnu-ld \
     --enable-version-specific-runtime-libs \
     ${_conf}
-    #--program-suffix=${_ver} \
-    #--enable-libitm
-    #--enable-objc-gc
-    #--with-gxx-include-dir=${MINGW_PREFIX}/include/c++/${_realpkgver} \
-    #--enable-libstdcxx-filesystem-ts \
+    # --program-suffix=${_ver} \
+    # --enable-libitm
+    # --enable-objc-gc
+    # --with-gxx-include-dir=${MINGW_PREFIX}/include/c++/${_realpkgver} \
+    # --enable-libstdcxx-filesystem-ts \
 
   # While we're debugging -fopenmp problems at least.
   # .. we may as well not strip anything.
@@ -225,7 +227,7 @@ package_mingw-w64-gcc-libs-git() {
   pkgdesc="GNU Compiler Collection (libraries) for MinGW-w64"
   depends=("${MINGW_PACKAGE_PREFIX}-gmp"
            "${MINGW_PACKAGE_PREFIX}-libwinpthread"
-           "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran-git")
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran${_ver}-git")
 
   # Licensing information
 
@@ -235,23 +237,26 @@ package_mingw-w64-gcc-libs-git() {
   license=(GPL3+ partial:'GCCRLE' partial:'LGPL2+')
 
   # We explain the licensing in this generated README file
-  mkdir -p "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs"
-  cat << ENDFILE > "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/README"
+  mkdir -p "${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/licenses/${_realname}-libs"
+  cat << ENDFILE > "${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/licenses/${_realname}-libs/README"
 The libgcc, libssp, libstdc++, libgomp and libatomic libraries are covered by
 GPL3+ with the GCC Runtime Library Exception. The libquadmath library is covered
 by LGPL2+. The package as a whole can be redistributed under GPL3+.
 ENDFILE
 
   # License files
-  install -Dm644 "${srcdir}/${_realname}/COPYING3"        "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/COPYING3"
-  install -Dm644 "${srcdir}/${_realname}/COPYING.LIB"     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/COPYING.LIB"
-  install -Dm644 "${srcdir}/${_realname}/COPYING.RUNTIME" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/COPYING.RUNTIME"
+  install -Dm644 "${srcdir}/${_realname}/COPYING3"             "${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/licenses/${_realname}-libs/COPYING3"
+  install -Dm644 "${srcdir}/${_realname}/COPYING.LIB"          "${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/licenses/${_realname}-libs/COPYING.LIB"
+  install -Dm644 "${srcdir}/${_realname}/COPYING.RUNTIME"      "${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/licenses/${_realname}-libs/COPYING.RUNTIME"
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
   cd ${srcdir}${MINGW_PREFIX}
   # libitm* and libvtv* are disbled until fixed
-  cp bin/{libatomic*,libgcc*,libgomp*,libquadmath*,libssp*,libstdc*}.dll ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/{libatomic*,libgcc*,libgomp*,libquadmath*,libssp*}.dll ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp lib/gcc/${MINGW_CHOST}/bin/libstdc*.dll                   ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/lib/libgcc_s.a                     ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 }
 
 package_mingw-w64-gcc-git() {
@@ -262,151 +267,152 @@ package_mingw-w64-gcc-git() {
            "${MINGW_PACKAGE_PREFIX}-isl"
            "${MINGW_PACKAGE_PREFIX}-libiconv"
            "${MINGW_PACKAGE_PREFIX}-mpc"
-           "${MINGW_PACKAGE_PREFIX}-${_realname}-libs-git=${pkgver}-${pkgrel}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-libs${_ver}-git=${pkgver}-${pkgrel}"
            "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
            "${MINGW_PACKAGE_PREFIX}-winpthreads"
            "${MINGW_PACKAGE_PREFIX}-zlib")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,include,lib,share}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/{bin,include,lib,share}
 
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/cpp.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gc.exe                                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gc.exe                                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/cc.exe
-  cp bin/gcc-a.exe                                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gcc-n.exe                                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gcc-ranli.exe                                         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gco.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/gcov-too.exe                                          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/c++.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/g++.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-c++.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-g++.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gcc-${_realpkgver}.exe                 ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gcc.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gcc-ar.exe                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gcc-nm.exe                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gcc-ranlib.exe                         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/cpp.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcc.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcc.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/cc.exe
+  cp bin/gcc-ar.exe                                            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcc-nm.exe                                            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcc-ranlib.exe                                        ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcov.exe                                              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/gcov-tool.exe                                         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/c++.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/g++.exe                                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-c++.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-g++.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gcc-${_realpkgver}.exe                 ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gcc.exe                                ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gcc-ar.exe                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gcc-nm.exe                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gcc-ranlib.exe                         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/c++      ${pkgdir}${MINGW_PREFIX}/include/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/*.h         ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/ssp      ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include-fixed    ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/install-tools    ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1.exe             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/collect2.exe        ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/crt*.o              ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/liblto*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcov*            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/lto*.exe            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1plus.exe         ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/c++      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/include/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/*.h         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/ssp      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include-fixed    ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/install-tools    ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1.exe             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/collect2.exe        ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/crt*.o              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/liblto*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcov*            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/lto*.exe            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1plus.exe         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libatomic*          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcc*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcc*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libatomic*          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcc*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgcc*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgomp*            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  #cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libitm*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libquadmath*        ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libssp*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  #cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libvtv*             ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libstdc++*          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libsupc++*          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgomp*            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  #cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libitm*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libquadmath*        ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libssp*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  #cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libvtv*             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libstdc++*          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libsupc++*          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/{doc,info,locale,man}
-  #cp -r share/doc/gcc-${_realpkgver} ${pkgdir}${MINGW_PREFIX}/share/doc/
-  cp share/info/cpp.info*                                      ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/cppinternals.info*                             ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gcc.info*                                      ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gccinstall.info*                               ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gccint.info*                                   ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  #cp share/info/libitm.info*                                   ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/libgomp.info*                                  ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/libquadmath.info*                              ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/{doc,info,locale,man}
+  #cp -r share/doc/gcc-${_realpkgver} ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/doc/
+  cp share/info/cpp.info*                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/cpp
+  cp share/info/cppinternals.info*                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/cppinternals
+  cp share/info/gcc.info*                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gcc
+  cp share/info/gccinstall.info*                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gccinstall
+  cp share/info/gccint.info*                                   ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gccint
+  #cp share/info/libitm.info*                                   ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/libitm
+  cp share/info/libgomp.info*                                  ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/libgomp
+  cp share/info/libquadmath.info*                              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/libquadmath
 
-  #cp share/locale/* ${pkgdir}${MINGW_PREFIX}/share/locale/
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/gcc-${_realpkgver}/python
-  cp -r share/gcc-${_realpkgver}/python/libstdcxx              ${pkgdir}${MINGW_PREFIX}/share/gcc-${_realpkgver}/python/
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/man/man1
-  cp share/man/man1/cpp.1                                      ${pkgdir}${MINGW_PREFIX}/share/man/man1/cpp${_ver}.1
-  cp share/man/man1/gcc.1                                      ${pkgdir}${MINGW_PREFIX}/share/man/man1/gcc${_ver}.1
-  cp share/man/man1/gcov.1                                     ${pkgdir}${MINGW_PREFIX}/share/man/man1/gcov${_ver}.1
-  cp share/man/man1/g++.1                                      ${pkgdir}${MINGW_PREFIX}/share/man/man1/g++${_ver}.1
+  #cp share/locale/* ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/locale/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/gcc-${_realpkgver}/python
+  cp -r share/gcc-${_realpkgver}/python/libstdcxx              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/gcc-${_realpkgver}/python/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1
+  cp share/man/man1/cpp.1                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1/cpp.1
+  cp share/man/man1/gcc.1                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1/gcc.1
+  cp share/man/man1/gcov.1                                     ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1/gcov.1
+  cp share/man/man1/g++.1                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1/g++.1
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/man/man7
-  cp share/man/man7/fsf-funding.7                              ${pkgdir}${MINGW_PREFIX}/share/man/man7/fsf-funding${_ver}.7
-  cp share/man/man7/gfdl.7                                     ${pkgdir}${MINGW_PREFIX}/share/man/man7/gfdl${_ver}.7
-  cp share/man/man7/gpl.7                                      ${pkgdir}${MINGW_PREFIX}/share/man/man7/gpl${_ver}.7
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man7
+  cp share/man/man7/fsf-funding.7                              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man7/fsf-funding.7
+  cp share/man/man7/gfdl.7                                     ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man7/gfdl.7
+  cp share/man/man7/gpl.7                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man7/gpl.7
 }
 
 package_mingw-w64-gcc-libgfortran-git() {
   pkgdesc="GNU Compiler Collection (libgfortran) for MinGW-w64"
-  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-libs-git=${pkgver}-${pkgrel}")
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-libs${_ver}-git=${pkgver}-${pkgrel}")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/libgfortran*.dll                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/libgfortran*.dll                                      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
 }
 
 package_mingw-w64-gcc-fortran-git() {
   pkgdesc="GNU Compiler Collection (Fortran) for MinGW-w64"
-  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}"
-           "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran-git=${pkgver}-${pkgrel}")
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git=${pkgver}-${pkgrel}"
+           "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran${_ver}-git=${pkgver}-${pkgrel}")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib,share}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/{bin,lib,share}
 
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/gfortran.exe                                          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
-  cp bin/${MINGW_CHOST}-gfortran.exe                           ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/gfortran.exe                                          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
+  cp bin/${MINGW_CHOST}-gfortran.exe                           ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/finclude         ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/f951.exe            ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libcaf_single.a     ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgfortran*        ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/man/man1
-  cp share/man/man1/gfortran.1                                 ${pkgdir}${MINGW_PREFIX}/share/man/man1/gfortran${_ver}.1
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/info
-  cp share/info/gfortran.info*                                 ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/finclude         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/f951.exe            ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libcaf_single.a     ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libgfortran*        ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1
+  cp share/man/man1/gfortran.1                                 ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/man/man1/gfortran.1
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info
+  cp share/info/gfortran.info*                                 ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gfortran
 }
 
 package_mingw-w64-gcc-ada-git() {
   pkgdesc="GNU Compiler Collection (Ada) for MinGW-w64"
-  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git=${pkgver}-${pkgrel}")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib,share}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/{bin,lib,share}
 
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/gnat*.exe                                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/gnat*.exe                                             ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
 
-  cp bin/{libgnarl*,libgnat*}.dll                              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp bin/{libgnarl*,libgnat*}.dll                              ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/bin/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/adainclude       ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/adalib           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/gnat1.exe           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/adainclude       ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/adalib           ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/gnat1.exe           ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gnat-style.info*                               ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gnat_rm.info*                                  ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
-  cp share/info/gnat_ugn.info*                                 ${pkgdir}${MINGW_PREFIX}/share/info/gcc${_ver}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gcc
+  cp share/info/gnat-style.info*                               ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gnat-style
+  cp share/info/gnat_rm.info*                                  ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gnat_rm
+  cp share/info/gnat_ugn.info*                                 ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/share/info/gnat_ugn
 }
 
 package_mingw-w64-gcc-objc-git() {
   pkgdesc="GNU Compiler Collection (ObjC,Obj-C++) for MinGW-w64"
-  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-git=${pkgver}-${pkgrel}")
+  depends=("${MINGW_PACKAGE_PREFIX}-${_realname}${_ver}-git=${pkgver}-${pkgrel}")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/{bin,lib}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/{bin,lib}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/libobjc*.dll                                          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}/bin/
+  cp lib/gcc/${MINGW_CHOST}/bin/libobjc*.dll                   ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/objc     ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1obj.exe          ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libobjc.*           ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
-  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1objplus.exe      ${pkgdir}${MINGW_PREFIX}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/objc     ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1obj.exe          ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/libobjc.*           ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
+  cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/cc1objplus.exe      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
 }
 
 # Wrappers for package functions

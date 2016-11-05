@@ -1,34 +1,16 @@
-From 34672424f438fba4a1cb0b64c360198d42279bcc Mon Sep 17 00:00:00 2001
-From: mati865 <mati865@gmail.com>
-Date: Sat, 8 Oct 2016 20:50:45 +0200
-Subject: [PATCH] workaround bootstrapping with MinGW
-
--S arg for selftest causes bootstrap to fail
----
- gcc/Makefile.in | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
 diff --git a/gcc/Makefile.in b/gcc/Makefile.in
-index f1ff782..ff3f1d9 100644
+index 622d038f6fb50c35ff48bc84a69967071aa17e90..7ecd1e4e726e4cb31b1c9fe22dcb777e71468fb2 100644
 --- a/gcc/Makefile.in
 +++ b/gcc/Makefile.in
-@@ -1881,7 +1881,7 @@ rest.cross: specs
+@@ -1879,7 +1879,10 @@ rest.cross: specs
  # Specify a dummy input file to placate the driver.
  # Specify -nostdinc to work around missing WIND_BASE environment variable
  # required for *-wrs-vxworks-* targets.
 -SELFTEST_FLAGS = -nostdinc -x c /dev/null -S -fself-test
-+SELFTEST_FLAGS = -nostdinc -x c /dev/null
++# Specify -o /dev/null so the output of -S is discarded. More importantly
++# It does not try to create a file with the name "null.s" on POSIX and
++# "nul.s" on Windows. Because on Windows "nul" is a reserved file name.
++SELFTEST_FLAGS = -nostdinc -x c /dev/null -S -fself-test -o /dev/null
  
  # Run the selftests during the build once we have a driver and a cc1,
  # so that self-test failures are caught as early as possible.
-@@ -2514,7 +2514,7 @@ ALL_GTFILES_H := $(sort $(GTFILES_H) $(GTFILES_LANG_H))
- $(ALL_GTFILES_H) gtype-desc.c gtype-desc.h gtype.state: s-gtype ; @true
- 
- ### Common flags to gengtype [e.g. -v or -B backupdir]
--GENGTYPE_FLAGS= 
-+GENGTYPE_FLAGS=
- 
- gtyp-input.list: s-gtyp-input ; @true
- s-gtyp-input: Makefile
--- 
-2.9.1
