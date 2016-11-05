@@ -13,8 +13,8 @@ pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-ada"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-objc")
 pkgver=6.2.1
-pkgrel=1
-_commit=ca15445
+pkgrel=2
+_commit=72f78423e80d45ae7a2fc152ea808bfb28824daf
 pkgdesc="GCC for the MinGW-w64"
 arch=('any')
 url="https://gcc.gnu.org"
@@ -52,6 +52,7 @@ source=("git://gcc.gnu.org/git/gcc.git#commit=${_commit}"
         "0013-MinGW-w64-Enable-shared-gnat.patch"
         "0014-gcc-6-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch"
         "0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch"
+        "0016-disable-weak-refs-in-libstdc++.patch"
         "0100-gcc-4.8-libstdc++export.patch"
         "0110-gcc-4.7-stdthreads.patch")
 sha256sums=('SKIP'
@@ -70,6 +71,7 @@ sha256sums=('SKIP'
             'bab73267116024d0b0d2a9dcb78a0ad839bb6a232f1ebbee7ed8fd54c8d71087'
             '60a58ed41389691a68ef4b7d47a0328df4d28d26e6c680a6b06b31191481ca65'
             '262c6fb0f6c9951d69e4c2dcc27949aa8f2cca8e672faf66740a7dbba4a4cd2c'
+            'c1e271c166de0062092cb61d50977c0e61d75b0ae6fb086cb8bb4da2b3fd18d7'
             '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
             '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b')
 
@@ -77,21 +79,23 @@ _threads="posix"
 
 prepare() {
   cd ${srcdir}/${_realname}
-  patch -p1 -i ${srcdir}/0001-gcc-6-branch-gfortran-incorrect-reading-of-values-fr.patch || true
-  patch -p1 -i ${srcdir}/0002-Relocate-libintl.patch
-  patch -p1 -i ${srcdir}/0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
-  patch -p1 -i ${srcdir}/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
-  patch -p1 -i ${srcdir}/0005-Windows-Don-t-ignore-native-system-header-dir.patch
-  patch -p1 -i ${srcdir}/0006-gcc-6-branch-Windows-New-feature-to-allow-overriding.patch
-  patch -p1 -i ${srcdir}/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
-  patch -p1 -i ${srcdir}/0008-Prettify-linking-no-undefined.patch
-  patch -p1 -i ${srcdir}/0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
-  patch -p1 -i ${srcdir}/0010-Fix-using-large-PCH.patch
-  patch -p1 -i ${srcdir}/0011-Enable-shared-gnat-implib.patch
-  # patch -p1 -i ${srcdir}/0012-MinGW-w64-Enable-libitm.patch
-  patch -p1 -i ${srcdir}/0013-MinGW-w64-Enable-shared-gnat.patch
-  patch -p1 -i ${srcdir}/0014-gcc-6-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
-  patch -p1 -i ${srcdir}/0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch
+  gitam_mkpkg "${srcdir}"/0001-gcc-6-branch-gfortran-incorrect-reading-of-values-fr.patch || true
+  gitam_mkpkg "${srcdir}"/0002-Relocate-libintl.patch
+  gitam_mkpkg "${srcdir}"/0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
+  gitam_mkpkg "${srcdir}"/0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
+  gitam_mkpkg "${srcdir}"/0005-Windows-Don-t-ignore-native-system-header-dir.patch
+  gitam_mkpkg "${srcdir}"/0006-gcc-6-branch-Windows-New-feature-to-allow-overriding.patch
+  gitam_mkpkg "${srcdir}"/0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
+  gitam_mkpkg "${srcdir}"/0008-Prettify-linking-no-undefined.patch
+  gitam_mkpkg "${srcdir}"/0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
+  gitam_mkpkg "${srcdir}"/0010-Fix-using-large-PCH.patch
+  gitam_mkpkg "${srcdir}"/0011-Enable-shared-gnat-implib.patch
+  # it doesn't work at all
+  # gitam_mkpkg "${srcdir}"/0012-MinGW-w64-Enable-libitm.patch
+  gitam_mkpkg "${srcdir}"/0013-MinGW-w64-Enable-shared-gnat.patch
+  gitam_mkpkg "${srcdir}"/0014-gcc-6-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
+  gitam_mkpkg "${srcdir}"/0015-Force-linking-to-libgcc_s_dw2-1.dll-deprecated.patch
+  gitam_mkpkg "${srcdir}"/0016-disable-weak-refs-in-libstdc++.patch
 
   #patch -p1 -i ${srcdir}/0100-gcc-4.8-libstdc++export.patch
   #patch -p1 -i ${srcdir}/0110-gcc-4.7-stdthreads.patch
@@ -202,7 +206,7 @@ ENDFILE
   install -Dm644 "${srcdir}/${_realname}/COPYING.LIB"     "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/COPYING.LIB"
   install -Dm644 "${srcdir}/${_realname}/COPYING.RUNTIME" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}-libs/COPYING.RUNTIME"
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin/
 
   cd ${srcdir}${MINGW_PREFIX}
   # libitm*, libvtv*
@@ -308,9 +312,9 @@ package_mingw-w64-gcc-libgfortran() {
   pkgdesc="GNU Compiler Collection (libgfortran) for MinGW-w64"
   depends=("${MINGW_PACKAGE_PREFIX}-${_realname}-libs=${pkgver}-${pkgrel}")
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin/
   cd ${srcdir}${MINGW_PREFIX}
-  cp bin/libgfortran*.dll                                ${pkgdir}${MINGW_PREFIX}/bin/
+  cp bin/libgfortran*.dll                               ${pkgdir}${MINGW_PREFIX}/bin/
 }
 
 package_mingw-w64-gcc-fortran() {

@@ -4,8 +4,6 @@
 # Contributor: Alexey Borzenkov <snaury@gmail.com>
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
-# TODO: find better solution for package naming
-#       test adding suffix and removing /opt/${_realname}${_ver}-git
 _ver='-7' # for installing alongside normal gcc
 _realname=gcc
 pkgbase=mingw-w64-${_realname}${_ver}-git
@@ -293,7 +291,8 @@ package_mingw-w64-gcc-git() {
   cp bin/${MINGW_CHOST}-gcc-ranlib.exe                         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/bin/
 
   mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include
-  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/c++      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/include/
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/include/c++/${_realpkgver}
+  cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/c++/*    ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/include/c++/${_realpkgver}/
   cp lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/*.h         ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
   cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/ssp      ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/lib/gcc/${MINGW_CHOST}/${_realpkgver}/include/
   cp -r lib/gcc/${MINGW_CHOST}/${_realpkgver}/include-fixed    ${pkgdir}${MINGW_PREFIX}/opt/${_realname}${_ver}-git/lib/gcc/${MINGW_CHOST}/${_realpkgver}/
